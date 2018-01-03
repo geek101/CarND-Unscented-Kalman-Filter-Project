@@ -67,6 +67,8 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  double previous_timestamp_;
+
 
   /**
    * Constructor
@@ -82,26 +84,39 @@ public:
    * ProcessMeasurement
    * @param meas_package The latest measurement data of either radar or laser
    */
-  void ProcessMeasurement(MeasurementPackage meas_package);
+  void ProcessMeasurement(const MeasurementPackage& measurement_pack);
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
    * matrix
    * @param delta_t Time between k and k+1 in s
    */
-  void Prediction(double delta_t);
+  void Prediction(double delta_t, MatrixXd& Xsig_aug);
 
   /**
    * Updates the state and the state covariance matrix using a laser measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateLidar(MeasurementPackage meas_package);
+  void UpdateLidar(const MeasurementPackage& meas_package,
+                   const VectorXd& z_pred, const MatrixXd& S,
+                   const MatrixXd& Zsig);
 
   /**
    * Updates the state and the state covariance matrix using a radar measurement
    * @param meas_package The measurement at k+1
    */
-  void UpdateRadar(MeasurementPackage meas_package);
+  void UpdateRadar(const MeasurementPackage& meas_package,
+                   const VectorXd& z_pred, const MatrixXd& S,
+                   const MatrixXd& Zsig);
+
+  void PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out,
+                               MatrixXd* Zsig_out);
+
+  void PredictLidarMeasurement(VectorXd* z_out, MatrixXd* S_out,
+                               MatrixXd* Zsig_out);
+  void GenerateSigmaPoints(MatrixXd* Xsig_out);
+
+  void AugmentedSigmaPoints(MatrixXd* Xsig_out);
 };
 
 #endif /* UKF_H */
